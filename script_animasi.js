@@ -3,7 +3,34 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const music = document.getElementById('bgMusic');
     const playButton = document.getElementById('playButton');
-    
+    let musicStarted = false;
+
+    // Tambahkan overlay untuk interaksi awal
+    const createStartOverlay = () => {
+        const overlay = document.createElement('div');
+        overlay.className = 'start-overlay';
+        overlay.innerHTML = `
+            <div class="start-content">
+                <span>Klik untuk melanjutkan ✨</span>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        // Ketika overlay diklik
+        overlay.addEventListener('click', function() {
+            // Coba putar musik
+            music.play().then(() => {
+                musicStarted = true;
+                playButton.innerHTML = '⏸️ Pause Music';
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 500);
+            }).catch(error => {
+                console.error("Failed to play music:", error);
+                overlay.remove();
+            });
+        });
+    };
+
     // Tambahkan event listener untuk interaksi user
     document.addEventListener('click', function initAudio() {
         // Coba putar musik saat ada interaksi pertama
@@ -44,19 +71,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     playButton.addEventListener('click', function() {
         if (music.paused) {
-            let playPromise = music.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    playButton.innerHTML = '⏸️ Pause Music';
-                    console.log("Music started playing");
-                }).catch(error => {
-                    console.error("Error playing music:", error);
-                    // Coba load ulang audio
-                    music.load();
-                    music.play().catch(e => console.error("Retry failed:", e));
-                });
-            }
+            music.play().then(() => {
+                playButton.innerHTML = '⏸️ Pause Music';
+                musicStarted = true;
+            });
         } else {
             music.pause();
             playButton.innerHTML = '▶️ Play Music';
@@ -92,9 +110,13 @@ document.addEventListener('DOMContentLoaded', function() {
             targetSlide.classList.add('active');
         }, 10);
         
-        // Update button visibility
         prevBtn.style.display = slideNumber === 1 ? 'none' : 'block';
         nextBtn.style.display = slideNumber === slides.length ? 'none' : 'block';
+
+        // Tampilkan overlay saat masuk slide 2
+        if (slideNumber === 2 && !musicStarted) {
+            createStartOverlay();
+        }
     }
     
     nextBtn.addEventListener('click', () => {
