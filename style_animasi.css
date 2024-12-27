@@ -1269,3 +1269,47 @@ mask-image: linear-gradient(to top, transparent 40%, #079097 80%) !important;
         transform: translate(var(--x-end), var(--y-end));
     }
 }
+
+.email-button-container {
+    margin-top: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease 1.2s forwards;
+}
+
+.email-button {
+    display: inline-block;
+    background: linear-gradient(45deg, #ff69b4, #ff1493);
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.email-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+    background: linear-gradient(45deg, #ff1493, #ff69b4);
+}
+
+@media screen and (max-width: 768px) {
+    .email-button {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .email-button-container {
+        margin-top: 15px;
+    }
+    
+    .email-button {
+        padding: 6px 14px;
+        font-size: 0.75rem;
+    }
+}

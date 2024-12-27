@@ -67,3 +67,6 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# Hapus atau comment out baris yang mungkin mengignore file musik
+# *.mp3

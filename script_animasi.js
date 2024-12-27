@@ -5,46 +5,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const playButton = document.getElementById('playButton');
     let musicStarted = false;
 
-    // Tambahkan overlay untuk interaksi awal
-    const createStartOverlay = () => {
-        const overlay = document.createElement('div');
-        overlay.className = 'start-overlay';
-        overlay.innerHTML = `
-            <div class="start-content">
-                <span>Klik untuk melanjutkan ✨</span>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-
-        // Ketika overlay diklik
-        overlay.addEventListener('click', function() {
-            // Coba putar musik
-            music.play().then(() => {
-                musicStarted = true;
-                playButton.innerHTML = '⏸️ Pause Music';
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.remove(), 500);
-            }).catch(error => {
-                console.error("Failed to play music:", error);
-                overlay.remove();
-            });
-        });
-    };
-
-    // Tambahkan event listener untuk interaksi user
-    document.addEventListener('click', function initAudio() {
-        // Coba putar musik saat ada interaksi pertama
-        music.play().then(() => {
+    // Fungsi untuk mencoba memutar musik
+    async function tryPlayMusic() {
+        try {
+            await music.play();
+            musicStarted = true;
             playButton.innerHTML = '⏸️ Pause Music';
-        }).catch(error => {
-            console.log("Playback failed:", error);
-            playButton.innerHTML = '▶️ Play Music';
-        });
-        
-        // Hapus listener setelah interaksi pertama
-        document.removeEventListener('click', initAudio);
-    }, { once: true });
-    
+            console.log("Music started successfully");
+        } catch (error) {
+            console.error("Autoplay failed:", error);
+            // Tambahkan one-time click listener untuk seluruh dokumen
+            const startMusic = async () => {
+                try {
+                    await music.play();
+                    musicStarted = true;
+                    playButton.innerHTML = '⏸️ Pause Music';
+                } catch (e) {
+                    console.error("Play on click failed:", e);
+                }
+            };
+            document.addEventListener('click', startMusic, { once: true });
+        }
+    }
+
     // Update audio tag di animasi.html
     music.setAttribute('preload', 'auto');
     
@@ -71,10 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     playButton.addEventListener('click', function() {
         if (music.paused) {
-            music.play().then(() => {
-                playButton.innerHTML = '⏸️ Pause Music';
-                musicStarted = true;
-            });
+            tryPlayMusic();
         } else {
             music.pause();
             playButton.innerHTML = '▶️ Play Music';
@@ -106,17 +86,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const targetSlide = document.querySelector(`[data-slide="${slideNumber}"]`);
         targetSlide.style.display = 'block';
+        
+        // Tunggu animasi slide muncul selesai baru putar musik
         setTimeout(() => {
             targetSlide.classList.add('active');
+            
+            // Putar musik hanya ketika masuk ke slide 2 dan musik belum dimulai
+            if (slideNumber === 2 && !musicStarted) {
+                // Tambahkan delay kecil untuk memastikan transisi slide selesai
+                setTimeout(() => {
+                    tryPlayMusic();
+                }, 500); // Delay 500ms setelah slide muncul
+            }
         }, 10);
         
         prevBtn.style.display = slideNumber === 1 ? 'none' : 'block';
         nextBtn.style.display = slideNumber === slides.length ? 'none' : 'block';
-
-        // Tampilkan overlay saat masuk slide 2
-        if (slideNumber === 2 && !musicStarted) {
-            createStartOverlay();
-        }
     }
     
     nextBtn.addEventListener('click', () => {
@@ -130,6 +115,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentSlide > 1) {
             currentSlide--;
             showSlide(currentSlide);
+            
+            // Jika kembali dari slide 2, pause musik
+            if (currentSlide === 1 && !music.paused) {
+                music.pause();
+                playButton.innerHTML = '▶️ Play Music';
+            }
         }
     });
     
@@ -177,12 +168,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Buat 20 kunang-kunang
     createFireflies(20);
 
-    // Tambahkan event listener untuk memastikan audio sudah dimuat
+    // Pastikan audio sudah dimuat
     music.addEventListener('loadeddata', () => {
-        console.log("Audio file loaded");
+        console.log("Audio file loaded successfully");
     });
 
     music.addEventListener('error', (e) => {
-        console.error("Audio error:", e);
+        console.error("Audio loading error:", e);
+        // Coba load source alternatif jika yang pertama gagal
+        if (music.getElementsByTagName('source')[0].src !== music.getElementsByTagName('source')[1].src) {
+            music.src = music.getElementsByTagName('source')[1].src;
+        }
     });
 });
