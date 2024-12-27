@@ -15,6 +15,7 @@
 <script src="script_animasi.js"></script>
 <body class="not-loaded">
   <audio id="bgMusic" loop preload="auto" controlsList="nodownload">
+    <source src="https://cdn.jsdelivr.net/gh/aboutyouuu/for-piyyaaa@main/assets/music/wanna-be-yours.mp3" type="audio/mpeg">
     <source src="assets/music/wanna-be-yours.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
@@ -374,5 +375,16 @@
     </div>
   </div>
 </body>
+
+<script>
+    // Add error handling for audio
+    document.getElementById('bgMusic').addEventListener('error', function(e) {
+        console.error('Error loading audio:', e);
+        // Try alternative source
+        if (this.getElementsByTagName('source')[0].src !== this.getElementsByTagName('source')[1].src) {
+            this.src = this.getElementsByTagName('source')[1].src;
+        }
+    }, true);
+</script>
 
 </html>

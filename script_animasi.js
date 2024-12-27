@@ -8,22 +8,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fungsi untuk mencoba memutar musik
     async function tryPlayMusic() {
         try {
+            // Reset audio element
+            music.currentTime = 0;
+            
+            // Coba load ulang audio jika gagal
+            if (music.networkState === 3) { // NETWORK_NO_SOURCE
+                music.load();
+            }
+            
             await music.play();
             musicStarted = true;
             playButton.innerHTML = '⏸️ Pause Music';
             console.log("Music started successfully");
         } catch (error) {
             console.error("Autoplay failed:", error);
-            // Tambahkan one-time click listener untuk seluruh dokumen
+            
+            // Tambahkan one-time click listener
             const startMusic = async () => {
+                const music = document.getElementById('bgMusic');
                 try {
                     await music.play();
                     musicStarted = true;
                     playButton.innerHTML = '⏸️ Pause Music';
                 } catch (e) {
                     console.error("Play on click failed:", e);
+                    // Coba source alternatif
+                    if (music.getElementsByTagName('source')[0].src !== music.getElementsByTagName('source')[1].src) {
+                        music.src = music.getElementsByTagName('source')[1].src;
+                        await music.play();
+                    }
                 }
             };
+            
             document.addEventListener('click', startMusic, { once: true });
         }
     }
@@ -119,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Jika kembali dari slide 2, pause musik
             if (currentSlide === 1 && !music.paused) {
                 music.pause();
-                playButton.innerHTML = '▶️ Play Music';
+                playButton.innerHTML = '▶�� Play Music';
             }
         }
     });
