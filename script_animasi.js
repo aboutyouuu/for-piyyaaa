@@ -1,93 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     document.body.classList.remove('not-loaded');
     
-    const music = document.getElementById('bgMusic');
-    const playButton = document.getElementById('playButton');
-    let musicStarted = false;
-
-    // Fungsi untuk mencoba memutar musik
-    async function tryPlayMusic() {
-        try {
-            // Reset audio element
-            music.currentTime = 0;
-            
-            // Coba load ulang audio jika gagal
-            if (music.networkState === 3) { // NETWORK_NO_SOURCE
-                music.load();
-            }
-            
-            await music.play();
-            musicStarted = true;
-            playButton.innerHTML = '⏸️ Pause Music';
-            console.log("Music started successfully");
-        } catch (error) {
-            console.error("Autoplay failed:", error);
-            
-            // Tambahkan one-time click listener
-            const startMusic = async () => {
-                const music = document.getElementById('bgMusic');
-                try {
-                    await music.play();
-                    musicStarted = true;
-                    playButton.innerHTML = '⏸️ Pause Music';
-                } catch (e) {
-                    console.error("Play on click failed:", e);
-                    // Coba source alternatif
-                    if (music.getElementsByTagName('source')[0].src !== music.getElementsByTagName('source')[1].src) {
-                        music.src = music.getElementsByTagName('source')[1].src;
-                        await music.play();
-                    }
-                }
-            };
-            
-            document.addEventListener('click', startMusic, { once: true });
-        }
-    }
-
-    // Update audio tag di animasi.html
-    music.setAttribute('preload', 'auto');
-    
-    // Mencegah akses langsung ke audio
-    music.addEventListener('contextmenu', e => e.preventDefault());
-    music.addEventListener('dragstart', e => e.preventDefault());
-    
-    // Mencegah download dan inspect
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && 
-            (e.key === 's' || 
-             e.key === 'S' || 
-             e.key === 'u' || 
-             e.key === 'U' || 
-             e.key === 'i' || 
-             e.key === 'I')) {
-            e.preventDefault();
-            return false;
-        }
-    });
-    
-    // Mencegah klik kanan
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    
-    playButton.addEventListener('click', function() {
-        if (music.paused) {
-            tryPlayMusic();
-        } else {
-            music.pause();
-            playButton.innerHTML = '▶️ Play Music';
-        }
-    });
-
-    // Tambahkan hover effect untuk tombol
-    playButton.addEventListener('mouseenter', function() {
-        this.style.transform = 'scale(1.1)';
-        this.style.background = 'rgba(255, 255, 255, 0.3)';
-    });
-
-    playButton.addEventListener('mouseleave', function() {
-        this.style.transform = 'scale(1)';
-        this.style.background = 'rgba(255, 255, 255, 0.2)';
-    });
-
     // Tambahkan kode untuk navigasi slide
     const slides = document.querySelectorAll('.slide');
     const prevBtn = document.getElementById('prevBtn');
@@ -103,17 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetSlide = document.querySelector(`[data-slide="${slideNumber}"]`);
         targetSlide.style.display = 'block';
         
-        // Tunggu animasi slide muncul selesai baru putar musik
         setTimeout(() => {
             targetSlide.classList.add('active');
-            
-            // Putar musik hanya ketika masuk ke slide 2 dan musik belum dimulai
-            if (slideNumber === 2 && !musicStarted) {
-                // Tambahkan delay kecil untuk memastikan transisi slide selesai
-                setTimeout(() => {
-                    tryPlayMusic();
-                }, 500); // Delay 500ms setelah slide muncul
-            }
         }, 10);
         
         prevBtn.style.display = slideNumber === 1 ? 'none' : 'block';
@@ -131,12 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentSlide > 1) {
             currentSlide--;
             showSlide(currentSlide);
-            
-            // Jika kembali dari slide 2, pause musik
-            if (currentSlide === 1 && !music.paused) {
-                music.pause();
-                playButton.innerHTML = '▶�� Play Music';
-            }
         }
     });
     
@@ -183,17 +81,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Buat 20 kunang-kunang
     createFireflies(20);
-
-    // Pastikan audio sudah dimuat
-    music.addEventListener('loadeddata', () => {
-        console.log("Audio file loaded successfully");
-    });
-
-    music.addEventListener('error', (e) => {
-        console.error("Audio loading error:", e);
-        // Coba load source alternatif jika yang pertama gagal
-        if (music.getElementsByTagName('source')[0].src !== music.getElementsByTagName('source')[1].src) {
-            music.src = music.getElementsByTagName('source')[1].src;
-        }
-    });
 });
