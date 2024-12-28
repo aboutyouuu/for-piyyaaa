@@ -16,7 +16,8 @@
 <body class="not-loaded">
   <audio id="bgMusic" loop preload="auto" controlsList="nodownload">
     <source src="assets/music/wanna-be-yours.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
+    <source src="assets/music/wanna-be-yours.mp3" type="audio/mp3">
+    <p>Your browser does not support HTML5 audio.</p>
   </audio>
 
   <button id="playButton" style="
@@ -59,8 +60,8 @@
     </div>
 
     <div class="slide" data-slide="4" style="display: none;">
-      <span>ak liat km makin gemukann, thenn makin cuteee AWJDWAIJDWAIJ <p class="emoticon">( ◡̀_◡́)ᕤ</p></span>
-      <span>soo ak penasarann kok isoo piyya gemukan nya itu lari ke pipiii <p class="emoticon">(꩜ ᯅ ꩜)⁭ ⁭</p></span>
+      <span>ak liat km makin gemukann, thenn makin cuteee AWJDWAIJDWAIJ <p class="emoticon">(„• ֊ •„)੭</p></span>
+      <span>soo ak penasarann kok isoo piyya gemukan nya itu lari ke pipiii <p class="emoticon">(꩜ ᯅ ꩜)⁭</p></span>
       <span>tapi jangan berlebihann yaaa nonaa <p class="emoticon">ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧</p></span>
     </div>
 
@@ -376,12 +377,11 @@
 </body>
 
 <script>
-    // Add error handling for audio
-    document.getElementById('bgMusic').addEventListener('error', function(e) {
+    document.getElementById('bgMusic')?.addEventListener('error', function(e) {
         console.error('Error loading audio:', e);
-        // Try alternative source
-        if (this.getElementsByTagName('source')[0].src !== this.getElementsByTagName('source')[1].src) {
-            this.src = this.getElementsByTagName('source')[1].src;
+        const playButton = document.getElementById('playButton');
+        if (playButton) {
+            playButton.innerHTML = '❌ Music Error';
         }
     }, true);
 </script>
